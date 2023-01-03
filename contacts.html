@@ -424,6 +424,82 @@
 <script src="libs/fancybox.umd.js"></script>
 <script src="js/main.min.js"></script>
 
+    <script>
+        ymaps.ready(init);
+
+        function init() {
+            let coords
+            let zoom = 16
+            setMapData()
+
+
+            let myMap = new ymaps.Map("map", {
+                center:coords[0],
+                zoom
+            });
+
+            myMap.behaviors.disable('scrollZoom');
+            addPlaceMarks()
+
+
+            $(".contacts-select").click(function () {
+                let template = $(this).html()
+                $(".contacts__mob-select").html(template)
+                $(".contacts__mob-select").removeClass("_active")
+
+                if(!$(this).hasClass("_active")){
+                    $(".contacts-select").removeClass("_active")
+                    $(this).addClass("_active")
+
+                    if(window.innerWidth>992){
+                        $(".contacts-select__hidden").slideUp()
+                    }
+
+                    $(this).find(".contacts-select__hidden").slideDown()
+                } else {
+                    return
+                }
+
+                setMapData()
+                myMap.setCenter(coords[0], zoom, {});
+                myMap.geoObjects.removeAll()
+                addPlaceMarks()
+            })
+
+
+            function setMapData() {
+                coords = $(".contacts-select._active").data("coords")
+            }
+
+
+            function addPlaceMarks() {
+                let addresses = document.querySelectorAll(".contacts-select._active .contacts-select__item")
+                coords.forEach((el, index, coords) => {
+                    let template = addresses[index].innerHTML
+                    console.log(template)
+                    let placemark = new ymaps.Placemark(el, {
+                            balloonContentHeader: ``,
+                            balloonContentBody: `
+                    ${template}
+                `,
+                            balloonContentFooter: '',
+                        },
+                        {
+                            iconLayout: 'default#image',
+                        }
+                    );
+                    myMap.geoObjects.add(placemark);
+                })
+
+                if(coords.length>1){
+                    myMap.setBounds(myMap.geoObjects.getBounds(), {
+                        checkZoomRange: true,
+                        zoomMargin: 35
+                    });
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>
